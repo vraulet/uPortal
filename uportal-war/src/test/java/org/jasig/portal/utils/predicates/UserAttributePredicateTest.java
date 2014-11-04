@@ -17,9 +17,10 @@
  * under the License.
  */
 
-package org.jasig.portal.rendering.predicates;
+package org.jasig.portal.utils.predicates;
 
-import org.jasig.portal.IUserPreferencesManager;
+import javax.servlet.http.HttpServletRequest;
+
 import org.jasig.portal.IUserProfile;
 import org.jasig.portal.security.IPerson;
 import org.jasig.portal.user.IUserInstance;
@@ -28,8 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import javax.servlet.http.HttpServletRequest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,15 +36,14 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
- * Unit tests for ProfileFNamePredicateTest.
+ * Unit tests for UserAttributePredicateTest.
  *
  * Implementation note: this test currently suffers from the TestMirrorsImplementation testing anti-pattern,
  * in that it relies upon mocking up exactly the lookup path in the implementation.  It would be better to use more
- * real objects and less mock objects by mocking up only the bits necessary to make real objects interpret the mocks
- * as meaning the indicated active profile fname.
+ * real objects and less mock objects by mocking up only the bits necessary to make real objects interpret the mocks.
  * @since uPortal 4.2
  */
-public class ProfileFNamePredicateTest {
+public class UserAttributePredicateTest {
 
     @Mock private HttpServletRequest request;
 
@@ -55,11 +53,11 @@ public class ProfileFNamePredicateTest {
 
     @Mock private IPerson person;
 
-    @Mock private IUserPreferencesManager userPreferencesManager;
-
     @Mock private IUserProfile userProfile;
 
-    private ProfileFNamePredicate predicate;
+    private Object[] values;
+
+    private UserAttributePredicate predicate;
 
     @Before
     public void beforeTests() {
@@ -70,42 +68,70 @@ public class ProfileFNamePredicateTest {
 
         when(userInstance.getPerson()).thenReturn(person);
 
-        when(userInstance.getPreferencesManager()).thenReturn(userPreferencesManager);
-        when(userPreferencesManager.getUserProfile()).thenReturn(userProfile);
-
-        when(userProfile.getProfileFname()).thenReturn("exampleUserProfileFname");
-
         when(person.getUserName()).thenReturn("exampleUserName");
 
-        predicate = new ProfileFNamePredicate();
+        values = new Object[]{"item1", "item2"};
+        when(person.getAttributeValues("attributeName")).thenReturn(values);
+
+        predicate = new UserAttributePredicate();
         predicate.setUserInstanceManager(userInstanceManager);
 
     }
 
 
     /**
-     * When the profile associated with the request has the expected fname,
+     * When the person associated with the request has the expected attribute with any value,
      * the predicate returns true.
      */
     @Test
-    public void whenProfileNameMatchesReturnsTrue() {
+    public void whenUserAttributeMatchesAnyValueReturnsTrue() {
 
-        // configure to look for the profile fname that will be found
-        predicate.setProfileFNameToMatch("exampleUserProfileFname");
+        // configure to look for the attribute name that will be found
+        predicate.setUserAttributeName("attributeName");
 
         assertTrue( predicate.apply(request) );
 
     }
 
     /**
-     * When the profile associated with the request does not have the configured fname,
+     * When the person associated with the request has the expected attribute with the specified value,
+     * the predicate returns true.
+     */
+    @Test
+    public void whenUserAttributeMatchesValueReturnsTrue() {
+
+        // configure to look for the attribute name that will be found
+        predicate.setUserAttributeName("attributeName");
+        predicate.setUserAttributeValue("item1");
+
+        assertTrue( predicate.apply(request) );
+
+    }
+
+    /**
+     * When the person associated with the request does not have the expected attribute,
      * the predicate returns false.
      */
     @Test
-    public void whenProfileNameDoesNotMatchReturnsFalse() {
+    public void whenUserAttributeNotFoundReturnsFalse() {
 
-        // configure to look for a profile fname that will not be found.
-        predicate.setProfileFNameToMatch("willNotFindThis");
+        // configure to look for an attribute name that will not be found.
+        predicate.setUserAttributeName("willNotFindThis");
+
+        assertFalse( predicate.apply(request) );
+
+    }
+
+    /**
+     * When the person associated with the request does not have the expected attribute,
+     * the predicate returns false.
+     */
+    @Test
+    public void whenUserAttributeValueNotFoundReturnsFalse() {
+
+        // configure to look for an attribute value that will not be found.
+        predicate.setUserAttributeName("attributeName");
+        predicate.setUserAttributeValue("willNotBeFound");
 
         assertFalse( predicate.apply(request) );
 
@@ -114,9 +140,11 @@ public class ProfileFNamePredicateTest {
     @Test
     public void hasFriendlyToString() {
 
-        predicate.setProfileFNameToMatch("someProfile");
+        predicate.setUserAttributeName("someName");
+        predicate.setUserAttributeValue("someValue");
 
-        assertEquals("Predicate: true where profile fname is someProfile.", predicate.toString());
+        assertEquals("Predicate: true where user has attribute with name someName and value someValue",
+                predicate.toString());
 
     }
 

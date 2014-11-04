@@ -17,17 +17,16 @@
  * under the License.
  */
 
-package org.jasig.portal.rendering.predicates;
+package org.jasig.portal.utils.predicates;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.jasig.portal.url.IPortalRequestInfo;
 import org.jasig.portal.url.IUrlSyntaxProvider;
 import org.jasig.portal.url.UrlState;
-import org.jasig.portal.url.UrlType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

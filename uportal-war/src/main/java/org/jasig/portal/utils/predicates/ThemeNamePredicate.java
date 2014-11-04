@@ -17,11 +17,13 @@
  * under the License.
  */
 
-package org.jasig.portal.rendering.predicates;
+package org.jasig.portal.utils.predicates;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Predicate;
-import org.jasig.portal.security.IPerson;
-import org.jasig.portal.security.IPersonManager;
+import org.jasig.portal.layout.dao.IStylesheetDescriptorDao;
+import org.jasig.portal.layout.om.IStylesheetDescriptor;
 import org.jasig.portal.user.IUserInstance;
 import org.jasig.portal.user.IUserInstanceManager;
 import org.slf4j.Logger;
@@ -30,50 +32,52 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
- * Predicate determining whether the given request represents a request in the context of a profile
- * matching the configured profile fname.
+ * Predicate determining whether the current user uses a stylesheet theme name matching the configured theme name.
  * @since uPortal 4.2
+ * @author James Wennmacher jwennmacher@unicon.net
  */
-public class ProfileFNamePredicate
+public class ThemeNamePredicate
     implements Predicate<HttpServletRequest> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     // auto-wired
     private IUserInstanceManager userInstanceManager;
+    private IStylesheetDescriptorDao stylesheetDescriptorDao;
 
     // dependency-injected
-    private String profileFNameToMatch;
+    private String themeNameToMatch;
 
 
     @Override
     public boolean apply(final HttpServletRequest request) {
-
         final IUserInstance userInstance = this.userInstanceManager.getUserInstance(request);
 
-        final String profileFName = userInstance.getPreferencesManager().getUserProfile().getProfileFname();
+        IStylesheetDescriptor descriptor = getCurrentUserProfileStyleSheetDescriptor(userInstance);
+        String uiTheme = descriptor.getName();
 
         // used for logging
         final String username = userInstance.getPerson().getUserName();
 
-        if (profileFNameToMatch.equals(profileFName)) {
-
-            logger.debug("User {} does have profile with matching fname {}.",
-                    username,
-                    profileFName );
-
+        if (themeNameToMatch.equals(uiTheme)) {
+            logger.debug("User {} does use UI theme matching name {}.",username, uiTheme );
             return true;
         }
 
-        logger.debug("Request for user {} presents profile fname {} which does not match configured profile fname {}.",
-                username,
-                profileFName,
-                profileFNameToMatch);
-
+        logger.debug("Request for user {} uses UI theme {} which does not match configured theme {}.",
+                username, uiTheme, themeNameToMatch);
         return false;
+    }
+
+    /**
+     * Gets the current user's stylesheet descriptor.
+     * @param userInstance user instance
+     * @return Current user's stylesheet descriptor.
+     */
+    private IStylesheetDescriptor getCurrentUserProfileStyleSheetDescriptor(IUserInstance userInstance) {
+        int profileId = userInstance.getPreferencesManager().getUserProfile().getThemeStylesheetId();
+        return this.stylesheetDescriptorDao.getStylesheetDescriptor(profileId);
     }
 
     @Autowired
@@ -82,14 +86,23 @@ public class ProfileFNamePredicate
         this.userInstanceManager = userInstanceManager;
     }
 
+    @Autowired
+    public void setStylesheetDescriptorDao(IStylesheetDescriptorDao stylesheetDescriptorDao) {
+        this.stylesheetDescriptorDao = stylesheetDescriptorDao;
+    }
+
+    /**
+     * Set the name of the theme (style sheet descriptor) to check for.
+     * @param themeNameToMatch
+     */
     @Required
-    public void setProfileFNameToMatch(final String profileFNameToMatch) {
-        this.profileFNameToMatch = profileFNameToMatch;
+    public void setThemeNameToMatch(final String themeNameToMatch) {
+        this.themeNameToMatch = themeNameToMatch;
     }
 
     @Override
     public String toString() {
-        return "Predicate: true where profile fname is " + this.profileFNameToMatch + ".";
+        return "Predicate: true where theme name is " + this.themeNameToMatch + ".";
     }
 
 }

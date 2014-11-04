@@ -23,6 +23,8 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns="http://www.springframework.org/schema/beans" 
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
        xsi:schemaLocation="
            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
@@ -286,15 +288,53 @@
         <property name="wrappedComponent" ref="portletRenderingIncorporationComponent" />
     </bean>
     
-    <bean id="portalRenderingPipeline" class="org.jasig.portal.rendering.DynamicRenderingPipeline">
+    <!--
+     | Main rendering pipeline flow.
+     | Branch to the singlePortletRedirectRenderingPipeline to render a single portlet if
+     | a) a user attribute is present indicating to present a single portlet experience and
+     | b) URL is not focused on a single portlet.
+     | Among other things allows for a more responsive, lower data-usage, mobile-friendly single-portlet view.
+     +-->
+    <bean id="branchingRenderingPipeline" class="org.jasig.portal.rendering.BranchingRenderingPipeline">
         <qualifier value="main" />
+        <property name="predicate">
+            <bean class="com.google.common.base.Predicates" factory-method="and">
+                <constructor-arg>
+                    <list>
+                        <bean class="org.jasig.portal.utils.predicates.UserAttributePredicate"
+                              p:userAttributeName="mobileSinglePortletExperience" p:userAttributeValue="true"/>
+                        <ref bean="notFocusedOnOnePortletPredicate"/>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="truePipe" ref="singlePortletRedirectRenderingPipeline">
+        </property>
+        <property name="falsePipe" ref="normalPortalRenderingPipeline"/>
+    </bean>
+
+    <bean id="notFocusedOnOnePortletPredicate"
+          class="com.google.common.base.Predicates" factory-method="not">
+        <constructor-arg>
+            <bean class="org.jasig.portal.utils.predicates.FocusedOnOnePortletPredicate" />
+        </constructor-arg>
+    </bean>
+
+    <!--
+     | Pipeline that renders content for the user.
+     +-->
+    <bean id="normalPortalRenderingPipeline" class="org.jasig.portal.rendering.DynamicRenderingPipeline">
         <property name="pipeline" ref="analyticsIncorporationComponent" />
     </bean>
-    
-    
-    
-    
-                           
+
+    <!--
+     | Pipeline that does an HTTP redirect to view a single portlet present on the user's layout.  Requires a
+     | reference to the normal pipeline in case the user's layout has no portlets in the content area.
+     +-->
+    <bean id="singlePortletRedirectRenderingPipeline"
+          class="org.jasig.portal.rendering.SinglePortletRedirectRenderingPipelineTerminator"
+          p:noPortletsPipeline-ref="normalPortalRenderingPipeline"/>
+
     <bean id="resourcesElementsProvider" class="org.jasig.resourceserver.utils.aggr.ResourcesElementsProviderImpl">
         <property name="resourcesDao" ref="resourcesDao" />
     </bean>

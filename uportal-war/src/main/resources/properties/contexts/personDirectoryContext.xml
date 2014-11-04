@@ -111,6 +111,27 @@
     </bean>
 
     <!--
+     | Servlet filter that adds a user attribute mobileSinglePortletExperience if the device is a mobile web browser
+     | and is using the Respondr theme.  This allows portlets and downstream processing to tailor the visual
+     | experience.
+     +-->
+    <bean id="mobileSinglePortletExperienceFilter" class="org.jasig.portal.web.PredicateAttributeAdderFilter"
+          p:personAttributeName="mobileSinglePortletExperience" p:personAttributeValue="true">
+        <property name="predicate">
+            <bean class="com.google.common.base.Predicates" factory-method="and">
+                <constructor-arg>
+                    <list>
+                        <bean class="org.jasig.portal.utils.predicates.ThemeNamePredicate"
+                              p:themeNameToMatch="Respondr"/>
+                        <bean class="org.jasig.portal.utils.predicates.MobileUserAgentPredicate"
+                              p:userAgentRegexString="${org.jasig.portal.http.header.userAgent.mobile.regex.pattern}"/>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+
+    <!--
      | Session-scoped descriptors object. One of these will exist for each user in their session. It will store the
      | attributes from the request set by the requestAttributeSourceFilter
      +-->

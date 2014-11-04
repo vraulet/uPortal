@@ -17,7 +17,9 @@
  * under the License.
  */
 
-package org.jasig.portal.rendering.predicates;
+package org.jasig.portal.utils.predicates;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Predicate;
 import org.jasig.portal.url.IPortalRequestInfo;
@@ -26,8 +28,6 @@ import org.jasig.portal.url.UrlState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Answers whether a given HttpServletRequest represents one that the rendering pipeline will focus on rendering just
