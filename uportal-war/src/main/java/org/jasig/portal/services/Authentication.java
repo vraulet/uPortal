@@ -237,6 +237,20 @@ public class Authentication {
                 log.error("Exception retrieving ID", ae);
                 throw new PortalSecurityException("Authentication Service: Exception retrieving UID");
             }
+
+        } else if (person.isGuest()) {
+            // For the guest user, populate the guest object with the person attributes.  This insures any attributes
+            // from the request or session are associated with this particular guest instance.
+
+            final IPersonAttributes personAttributes = this.personAttributeDao.getPerson(person.getUserName());
+
+            if (personAttributes != null) {
+                // attribs may be null.  IPersonAttributeDao returns null when it does not recognize a user at all, as
+                // distinguished from returning an empty Map of attributes when it recognizes a user has having no
+                // attributes.
+
+                person.setAttributes(personAttributes.getAttributes());
+            }
         }
 
         //Publish a login event for the person

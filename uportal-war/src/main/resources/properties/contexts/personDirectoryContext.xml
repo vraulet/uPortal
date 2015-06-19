@@ -100,13 +100,16 @@
         <property name="processingPosition" value="BOTH" />
         <property name="headerAttributeMapping">
             <util:map>
-                <entry key="User-Agent">
-                    <util:set>
-                        <value>agentDevice</value>
-                    </util:set>
-                </entry>
+                <entry key="User-Agent" value="agentDevice"/>
             </util:map>
         </property>
+        <property name="parameterAttributeMapping">
+            <util:map>
+                <entry key="nativeClient" value="nativeClient"/>
+            </util:map>
+        </property>
+        <!-- refUrl used to capture nativeClient request parameter through /uPortal redirect URL sequence -->
+        <property name="referringParameterName" value="refUrl"/>
     </bean>
 
     <!--

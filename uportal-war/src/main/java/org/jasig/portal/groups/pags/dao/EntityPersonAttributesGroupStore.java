@@ -44,12 +44,11 @@ import org.jasig.portal.groups.ILockableEntityGroup;
 import org.jasig.portal.groups.pags.PagsGroup;
 import org.jasig.portal.groups.pags.IPersonTester;
 import org.jasig.portal.groups.pags.TestGroup;
+import org.jasig.portal.persondir.IPersonAttributesProvider;
 import org.jasig.portal.security.IPerson;
 import org.jasig.portal.security.PersonFactory;
 import org.jasig.portal.security.provider.RestrictedPerson;
 import org.jasig.portal.spring.locator.ApplicationContextLocator;
-import org.jasig.portal.spring.locator.PersonAttributeDaoLocator;
-import org.jasig.services.persondir.IPersonAttributeDao;
 import org.jasig.services.persondir.IPersonAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +68,7 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
     private static final EntityIdentifier[] EMPTY_SEARCH_RESULTS = new EntityIdentifier[0];
     private IPersonAttributesGroupDefinitionDao personAttributesGroupDefinitionDao;
     private final Cache groupDefCache;
+    private final IPersonAttributesProvider attributesProvider;
 
     public EntityPersonAttributesGroupStore() {
         super();
@@ -76,6 +76,7 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
         this.personAttributesGroupDefinitionDao = applicationContext.getBean("personAttributesGroupDefinitionDao", IPersonAttributesGroupDefinitionDao.class);
         CacheManager cacheManager = applicationContext.getBean("cacheManager", CacheManager.class);
         this.groupDefCache = cacheManager.getCache("org.jasig.portal.groups.pags.dao.EntityPersonAttributesGroupStore");
+        attributesProvider = (IPersonAttributesProvider) applicationContext.getBean("personAttributesProvider");
     }
 
     public boolean contains(IEntityGroup group, IGroupMember member) {
@@ -92,8 +93,7 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
                { return false; }
            IPerson person = null;
            try {
-               IPersonAttributeDao pa = PersonAttributeDaoLocator.getPersonAttributeDao();
-               final IPersonAttributes personAttributes = pa.getPerson(member.getKey());
+               final IPersonAttributes personAttributes = attributesProvider.getPersonAttributes(member.getKey());
 
                RestrictedPerson rp = PersonFactory.createRestrictedPerson();
                if (personAttributes != null) {
@@ -144,8 +144,10 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
 
     private boolean testRecursively(PagsGroup groupDef, IPerson person, IGroupMember member)
         throws GroupsException {
-            if ( ! groupDef.contains(person) )
-                { return false;}
+            if ( ! groupDef.contains(person) ) {
+                logger.debug("Group {} does not contain {}", groupDef.getName(), person.getUserName());
+                return false;
+            }
             else
             {
                 IEntityGroup group = find(groupDef.getName());
@@ -165,6 +167,8 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
                             +" Please check PAGS Entity Files", group.getKey(), member.getKey(),
                             parentGroup != null ? parentGroup.getKey() : "no parent");
                 }
+                logger.debug("PAGS Group {} {} contain person {}", groupDef.getName(),
+                        testPassed? "did" : "did not", person.getUserName());
                 return testPassed;
             }
         }
@@ -207,6 +211,7 @@ public class EntityPersonAttributesGroupStore implements IEntityGroupStore, IEnt
             if ( contains(group, member))
                 { results.add(group); }
         }
+        logger.debug("Found containing groups {} for member {}", results, member.getKey());
         return results.iterator();
     }
 

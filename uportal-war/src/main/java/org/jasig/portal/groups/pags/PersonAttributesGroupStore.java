@@ -43,12 +43,13 @@ import org.jasig.portal.groups.IEntitySearcher;
 import org.jasig.portal.groups.IEntityStore;
 import org.jasig.portal.groups.IGroupMember;
 import org.jasig.portal.groups.ILockableEntityGroup;
+import org.jasig.portal.persondir.IPersonAttributesProvider;
 import org.jasig.portal.security.IPerson;
 import org.jasig.portal.security.PersonFactory;
 import org.jasig.portal.security.provider.RestrictedPerson;
-import org.jasig.portal.spring.locator.PersonAttributeDaoLocator;
-import org.jasig.services.persondir.IPersonAttributeDao;
+import org.jasig.portal.spring.locator.ApplicationContextLocator;
 import org.jasig.services.persondir.IPersonAttributes;
+import org.springframework.context.ApplicationContext;
 
 /**
  * The Person Attributes Group Store uses attributes stored in the IPerson object to determine
@@ -68,8 +69,12 @@ public class PersonAttributesGroupStore implements IEntityGroupStore, IEntitySto
    private Map groupDefinitions;
    private Map<String, IEntityGroup> groups;
    private Map<String, List> containingGroups;
-      
+    private final ApplicationContext applicationContext;
+    private final IPersonAttributesProvider attributesProvider;
+
    public PersonAttributesGroupStore() {
+       this.applicationContext = ApplicationContextLocator.getApplicationContext();
+       attributesProvider = (IPersonAttributesProvider) applicationContext.getBean("personAttributesProvider");
       groups = new HashMap<String, IEntityGroup>();
       containingGroups = new HashMap<String, List>();
       try {
@@ -130,8 +135,7 @@ public class PersonAttributesGroupStore implements IEntityGroupStore, IEntitySto
              { return false; }
          IPerson person = null;
          try {
-             IPersonAttributeDao pa = PersonAttributeDaoLocator.getPersonAttributeDao();
-             final IPersonAttributes personAttributes = pa.getPerson(member.getKey());
+             final IPersonAttributes personAttributes = attributesProvider.getPersonAttributes(member.getKey());
 
              RestrictedPerson rp = PersonFactory.createRestrictedPerson();
              if (personAttributes != null) {
