@@ -100,13 +100,12 @@
         <property name="processingPosition" value="BOTH" />
         <property name="headerAttributeMapping">
             <util:map>
-                <entry key="User-Agent">
-                    <util:set>
-                        <value>agentDevice</value>
-                    </util:set>
-                </entry>
+                <entry key="User-Agent" value="agentDevice"/>
             </util:map>
         </property>
+        <!-- refUrl is used to capture request parameters through /uPortal redirect URL sequence into /uPortal/Login
+             for addition to user attributes -->
+        <property name="referringParameterName" value="refUrl"/>
     </bean>
 
     <!--
