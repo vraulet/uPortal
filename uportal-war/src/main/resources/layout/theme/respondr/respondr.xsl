@@ -789,53 +789,18 @@
     <body class="up dashboard portal fl-theme-mist detachedHeader">
         <div id="wrapper">
             <xsl:call-template name="region.hidden-top" />
-            <xsl:call-template name="region.page-top" />
-                    <div class="portal-sticky-header" id="portal-sticky-header">
-                        <header class="portal-header" role="banner">
-                            <div class="portal-global">
-                                <div class="navbar navbar-fixed-top" role="navigation">
-                                    <div class="container-fluid">
-                                        <div class="portal-user">
-                                            <div class="navbar-header">
-                                                <a href="/uPortal" title="{upMsg:getMessage('return.to.dashboard.view', $USER_LANG)}" class="up-portlet-control hide-content pull-left fa fa-home portal-return-to-dashboard"></a>
-                                            </div>
-                                            <div class="navbar-collapse collapse">
-                                                <xsl:choose>
-                                                    <xsl:when test="$userImpersonating = 'true'">
-                                                        <xsl:value-of select="upMsg:getMessage('you.are.idswapped.as', $USER_LANG)"/>
-                                                    </xsl:when>
-                                                    <xsl:otherwise>
-                                                        <xsl:value-of select="upMsg:getMessage('you.are.signed.in.as', $USER_LANG)"/>
-                                                    </xsl:otherwise>
-                                                </xsl:choose>&nbsp;
-                                                <span class="user-name">
-                                                    <xsl:value-of select="$USER_NAME"/>
-                                                </span>
-                                                <xsl:if test="$AUTHENTICATED='true'">
-                                                    -
-                                                    <a href="{$CONTEXT_PATH}/Logout" title="{upMsg:getMessage('log.off.and.exit', $USER_LANG)}" class="up-portlet-control hide-content portal-logout">
-                                                        <xsl:value-of select="upMsg:getMessage('sign.out', $USER_LANG)"/>
-                                                    </a>
-                                                </xsl:if>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> <!-- end navbar -->
-                            </div>
-                        </header>
+            <xsl:call-template name="region.detached-banner" />
+            <div id="portalPageBody" class="portal-content portal-sticky-content" role="main">
+                <div class="portal-sticky-container container-fluid">
+                    <div class="row">
+                        <div id="portalPageBodyMessage" class="col-md-12"></div>
                     </div>
-                    <div class="portal-sticky-content" role="main">
-                        <div class="portal-sticky-container container-fluid">
-                            <div class="row">
-                                <div id="portalPageBodyMessage" class="col-md-12"></div>
-                            </div>
-                            
-                        </div>
-                        <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
-                        <xsl:copy-of select="/layout_fragment/content"/>
-                        <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
-                    </div>
-            <xsl:call-template name="region.page-bottom" />
+
+                </div>
+                <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
+                <xsl:copy-of select="/layout_fragment/content"/>
+                <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
+            </div>
             <xsl:call-template name="region.hidden-bottom" />
         </div>
         <script type="text/javascript">

@@ -108,7 +108,8 @@
                 <entry key="nativeClient" value="nativeClient"/>
             </util:map>
         </property>
-        <!-- refUrl used to capture nativeClient request parameter through /uPortal redirect URL sequence -->
+        <!-- refUrl is used to capture request parameters through /uPortal redirect URL sequence into /uPortal/Login
+             for addition to user attributes -->
         <property name="referringParameterName" value="refUrl"/>
     </bean>
 

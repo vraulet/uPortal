@@ -30,13 +30,12 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.jasig.portal.security.IPersonManager;
 import org.jasig.portal.url.IPortalRequestUtils;
-import org.jasig.portal.url.IPortalUrlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.portlet.ModelAndView;
@@ -47,12 +46,11 @@ import org.springframework.web.portlet.bind.annotation.RenderMapping;
  * renders a JSP at a location specified in the portlet definition (publish 
  * time).  This feature is very similar to the SimpleJspPortlet in the 
  * jasig-widget-portlets project, except portlets based on tech (1) are 
- * framework portlets, and (2) may access the native {@link IPortalUrlProvider} 
- * API.
+ * framework portlets.
  */
 @Controller
 @RequestMapping("VIEW")
-public final class JspInvokerPortletController implements ApplicationContextAware {
+public final class JspInvokerPortletController {
 
     private static final String CONTROLLER_PREFERENCE_PREFIX = JspInvokerPortletController.class.getSimpleName() + ".";
     private static final String VIEW_LOCATION_PREFERENCE = CONTROLLER_PREFERENCE_PREFIX + "viewLocation";
@@ -60,14 +58,17 @@ public final class JspInvokerPortletController implements ApplicationContextAwar
 
     private ApplicationContext applicationContext;
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    @Autowired()
-    private IPortalUrlProvider portalUrlProvider;
+    private IPersonManager personManager;
 
     @Autowired()
     private IPortalRequestUtils portalRequestUtils;
 
-    @Override
+    @Autowired
+    public void setPersonManager(IPersonManager personManager) {
+        this.personManager = personManager;
+    }
+
+    @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
@@ -83,12 +84,15 @@ public final class JspInvokerPortletController implements ApplicationContextAwar
         logger.debug("Invoking with userInfo={}", userInfo);
 
         model.putAll(getBeans(req));
-
         model.putAll(getPreferences(req));
+        model.put("authenticated", isAuthenticated());
 
         final String viewLocation = getViewLocation(req);
         return new ModelAndView(viewLocation, model);
+    }
 
+    private boolean isAuthenticated() {
+        return !personManager.getPerson(portalRequestUtils.getCurrentPortalRequest()).isGuest();
     }
 
     private Map<String,Object> getBeans(PortletRequest req) {

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<%--
 
     Licensed to Apereo under one or more contributor license
     agreements. See the NOTICE file distributed with this work
@@ -18,17 +17,9 @@
     specific language governing permissions and limitations
     under the License.
 
--->
-<pags-group script="classpath://org/jasig/portal/io/import-pags-group_v4-1.crn">
-  <name>Native Client Access</name>
-  <description>User Access by a native client; e.g. uMobile</description>
-  <selection-test>
-    <test-group>
-      <test>
-        <attribute-name>nativeClient</attribute-name>
-        <tester-class>org.jasig.portal.groups.pags.testers.StringEqualsIgnoreCaseTester</tester-class>
-        <test-value>true</test-value>
-      </test>
-    </test-group>
-  </selection-test>
-</pags-group>
+--%>
+<%@ include file="/WEB-INF/jsp/include.jsp" %>
+
+<div class="navbar-header banner-home">
+    <a href="${pageContext.request.contextPath}" title="<spring:message code='return.to.dashboard.view'/>" class="up-portlet-control hide-content pull-left fa fa-home portal-return-to-dashboard"></a>
+</div>

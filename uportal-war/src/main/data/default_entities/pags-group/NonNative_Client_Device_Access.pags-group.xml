@@ -19,21 +19,16 @@
     under the License.
 
 -->
-<!--
-  Group pags_root: "PAGS Root"
-  IMPORTANT: The PAGS Root group is REQUIRED for uPortal to function. It Must be a member of the Everyone group in the
-  local group store
--->
 <pags-group script="classpath://org/jasig/portal/io/import-pags-group_v4-1.crn">
-  <name>PAGS Root</name>
-  <description>Root group for all PAGS groups.  Convenience for adding PAGS groups to a local group.</description>
-  <members>
-    <member-name>All Users (PAGS)</member-name>
-    <member-name>Authenticated Users</member-name>
-    <member-name>Desktop Device Access</member-name>
-    <member-name>Mobile Device Access</member-name>
-    <member-name>Respondr Theme Users</member-name>
-    <member-name>Native Client Access</member-name>
-    <member-name>Non-Native Client Access</member-name>
-  </members>
+  <name>Non-Native Client Access</name>
+  <description>User Access by a non-native client; e.g. a web browser</description>
+  <selection-test>
+    <test-group>
+      <test>
+        <attribute-name>nativeClient</attribute-name>
+        <tester-class>org.jasig.portal.groups.pags.testers.ValueMissingTester</tester-class>
+        <test-value>true</test-value>
+      </test>
+    </test-group>
+  </selection-test>
 </pags-group>

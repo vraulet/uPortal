@@ -58,6 +58,33 @@
     exclude-result-prefixes="url upAuth upGroup upMsg dlm xsi"
     version="1.0">
 
+    <!-- ========== TEMPLATE: DETACHED-BANNER ========== -->
+    <!-- =============================================== -->
+    <!--
+     | This template renders portlets at the very top of the page, across the entire width, when in detached mode.
+    -->
+    <xsl:template name="region.detached-banner">
+        <xsl:if test="//region[@name='detached-banner']/channel">
+            <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
+            <div id="region-detached-banner" class="container-fluid">
+                <header class="portal-header" role="banner">
+                    <div class="portal-global">
+                        <div class="navbar navbar-fixed-top" role="navigation">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <xsl:for-each select="//region[@name='detached-banner']/channel">
+                                        <xsl:call-template name="regions.portlet.decorator" />
+                                    </xsl:for-each>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            </div>
+            <chunk-point/> <!-- Performance Optimization, see ChunkPointPlaceholderEventSource -->
+        </xsl:if>
+    </xsl:template>
+
     <!-- ========== TEMPLATE: HIDDEN-TOP ========== -->
     <!-- ========================================== -->
     <!--

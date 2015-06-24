@@ -20,17 +20,17 @@
 
 -->
 <portlet-definition xmlns="https://source.jasig.org/schemas/uportal/io/portlet-definition" xmlns:ns2="https://source.jasig.org/schemas/uportal" xmlns:ns3="https://source.jasig.org/schemas/uportal/io/permission-owner" xmlns:ns4="https://source.jasig.org/schemas/uportal/io/stylesheet-descriptor" xmlns:ns5="https://source.jasig.org/schemas/uportal/io/portlet-type" xmlns:ns6="https://source.jasig.org/schemas/uportal/io/user" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.0" xsi:schemaLocation="https://source.jasig.org/schemas/uportal/io/portlet-definition https://source.jasig.org/schemas/uportal/io/portlet-definition/portlet-definition-4.0.xsd">
-    <title>Logout Launcher</title>
-    <name>Logout Launcher</name>
-    <fname>logout-launcher</fname>
-    <desc>Provides a link to log out of the portal for authenticated users</desc>
+    <title>Detached Greeting</title>
+    <name>Detached Greeting</name>
+    <fname>detached-greeting</fname>
+    <desc>Greeting that appears at the top of the detached banner page</desc>
     <type>Portlet</type>
-    <timeout>5000</timeout>
+    <timeout>30000</timeout>
     <portlet-descriptor>
         <ns2:isFramework>true</ns2:isFramework>
         <ns2:portletName>JspInvoker</ns2:portletName>
     </portlet-descriptor>
-    <group>Authenticated Users</group>
+    <group>Non-Native Client Access</group>
     <parameter>
         <name>disableDynamicTitle</name>
         <value>true</value>
@@ -38,7 +38,12 @@
     <portlet-preference>
         <name>JspInvokerPortletController.viewLocation</name>
         <readOnly>false</readOnly>
-        <value>/jsp/Invoker/logout</value>
+        <value>/jsp/Invoker/detached-greeting</value>
+    </portlet-preference>
+    <portlet-preference>
+        <name>JspInvokerPortletController.beans</name>
+        <readOnly>false</readOnly>
+        <value>casRefUrlEncoder</value>
     </portlet-preference>
     <portlet-preference>
         <name>portalLogoutUrl</name>

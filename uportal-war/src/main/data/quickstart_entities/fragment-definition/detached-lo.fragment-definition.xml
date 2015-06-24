@@ -19,21 +19,15 @@
     under the License.
 
 -->
-<!--
-  Group pags_root: "PAGS Root"
-  IMPORTANT: The PAGS Root group is REQUIRED for uPortal to function. It Must be a member of the Everyone group in the
-  local group store
--->
-<pags-group script="classpath://org/jasig/portal/io/import-pags-group_v4-1.crn">
-  <name>PAGS Root</name>
-  <description>Root group for all PAGS groups.  Convenience for adding PAGS groups to a local group.</description>
-  <members>
-    <member-name>All Users (PAGS)</member-name>
-    <member-name>Authenticated Users</member-name>
-    <member-name>Desktop Device Access</member-name>
-    <member-name>Mobile Device Access</member-name>
-    <member-name>Respondr Theme Users</member-name>
-    <member-name>Native Client Access</member-name>
-    <member-name>Non-Native Client Access</member-name>
-  </members>
-</pags-group>
+<fragment-definition xmlns:dlm="http://org.jasig.portal.layout.dlm.config" script="classpath://org/jasig/portal/io/import-fragment-definition_v3-1.crn">
+  <dlm:fragment name="Detached" ownerID="detached-lo" precedence="80">
+    <dlm:audience evaluatorFactory="org.jasig.portal.layout.dlm.providers.GroupMembershipEvaluatorFactory">
+      <paren mode="AND">
+        <attribute mode="deepMemberOf" name="Respondr Theme Users"/>
+        <paren mode="NOT">
+          <attribute mode="deepMemberOf" name="Tenants"/>
+        </paren>
+      </paren>
+    </dlm:audience>
+  </dlm:fragment>
+</fragment-definition>

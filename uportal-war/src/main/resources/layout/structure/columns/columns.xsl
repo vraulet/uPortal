@@ -107,8 +107,7 @@
         </xsl:choose>
     </xsl:template>
 
-    <!-- NORMAL page template.  Governs the overall structure when the page is 
-         non-detached. -->
+    <!-- NORMAL page template.  Governs the overall structure when the page is non-detached. -->
     <xsl:template match="folder[@type='root']" mode="NORMAL">
         <layout>
             <xsl:call-template name="debug-info"/>
@@ -168,14 +167,14 @@
             <regions>
                 <xsl:choose>
                     <xsl:when test="$userLayoutRoot = 'root'">
-                        <!-- Include all regions when in DASHBOARD mode -->
-                        <xsl:for-each select="child::folder[@type!='regular' and @type!='sidebar' and channel]"><!-- Ignores empty folders -->
+                        <!-- Include all regions except detached-banner when in DASHBOARD mode -->
+                        <xsl:for-each select="child::folder[@type!='detached-banner' and @type!='regular' and @type!='sidebar' and channel]"><!-- Ignores empty folders -->
                             <xsl:call-template name="region"/>
                         </xsl:for-each>
                     </xsl:when>
                     <xsl:otherwise>
-                        <!-- Include all regions EXCEPT 'region-customize' when in FOCUSED mode -->
-                        <xsl:for-each select="child::folder[@type!='customize' and @type!='regular' and @type!='sidebar' and channel]"><!-- Ignores empty folders -->
+                        <!-- Include all regions EXCEPT 'region-customize' and detached-banner when in FOCUSED mode -->
+                        <xsl:for-each select="child::folder[@type!='customize' and @type!='detached-banner' and @type!='regular' and @type!='sidebar' and channel]"><!-- Ignores empty folders -->
                             <xsl:call-template name="region"/>
                         </xsl:for-each>
                     </xsl:otherwise>
@@ -227,20 +226,21 @@
             <!-- For each channel that will display on the page, add a channel-header element so the channel will be
                  invoked if it supports the RENDER_HEADERS phase to insert content in the page HEAD section. -->
             <header>
-                <!-- For detached mode, include regions hidden-top, page-top, page-bottom, and hidden-bottom. -->
-                <xsl:for-each select="child::folder[@type='hidden-top' or @type='page-top' or @type='page-bottom' or @type='hidden-bottom']/descendant::channel">
+                <!-- For detached mode, include regions hidden-top, detached-banner, and hidden-bottom. -->
+                <xsl:for-each select="child::folder[@type='hidden-top' or @type='detached-banner' or @type='hidden-bottom']/descendant::channel">
                     <channel-header ID="{@ID}"/>
                 </xsl:for-each>
                 <!-- Include the channel that is shown in detached mode. -->
                 <channel-header ID="{$userLayoutRoot}"/>
             </header>
             <regions>
-                <!-- For detached mode, include regions hidden-top, page-top, page-bottom, and hidden-bottom. -->
-                <xsl:for-each select="child::folder[@type='hidden-top' or @type='page-top' or @type='page-bottom' or @type='hidden-bottom']">
+                <!-- For detached mode, include regions hidden-top, detached-banner, and hidden-bottom. -->
+                <xsl:for-each select="child::folder[@type='hidden-top' or @type='detached-banner' or @type='hidden-bottom']">
                     <xsl:call-template name="region"/>
                 </xsl:for-each> 
             </regions>
             <content>
+                <!-- Do we want to have favorites with detached? I guess it might add 'Add to favorites'. -->
                 <xsl:attribute name="hasFavorites"><xsl:value-of select="$hasFavorites" /></xsl:attribute>
                 <!-- Detect whether a detached channel is present in the user's layout ? -->
                 <xsl:apply-templates select="//*[@ID = $userLayoutRoot]"/>
@@ -282,9 +282,8 @@
      | Regions behave normally in dashboard (normal) and focused (maximized) mode;  in
      | DETACHED window state, only a few regions are processed, and then ONLY IF THE STICKY
      | HEADER option is in effect.  The list of regions included with a sticky-header is:
-     | hidden-top, page-top, page-bottom, hidden-bottom.  The remaining regions are not
-     | present in the DOM and therefore their portlets MUST NOT be added to the rendering
-     | queue. 
+     | hidden-top, detached-banner, and hidden-bottom.  The remaining regions are not present
+     | in the DOM and therefore their portlets MUST NOT be added to the rendering queue.
      +-->
     <xsl:template name="region">
         <region name="{@type}">
