@@ -645,7 +645,7 @@ PORTLET DEVELOPMENT STANDARDS AND GUIDELINES
 </div>
 </div>
 
-<script src="media/skins/universality/common/javascript/uportal/up-parameter-editor.js" language="JavaScript" type="text/javascript"></script>
+<script src="media/skins/common/javascript/uportal/up-parameter-editor.js" language="JavaScript" type="text/javascript"></script>
 <script type="text/javascript">
     (function ($, _, Backbone) {
         var titleSelector = '#portletTitle',
