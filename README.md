@@ -260,4 +260,4 @@ approach.
 Database connection information is read from */uportal-war/src/main/resources/properties/rdbm.properties*,
 but is normally configured in *filters/{environment.name}.properties*.
 
-VR2
+VR20
